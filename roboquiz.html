@@ -1,0 +1,418 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <title>Electronics Quiz</title>  
+  <style>  
+    /* Dark Attractive UI */  
+    body {  
+      background: #121212;  
+      color: #e0e0e0;  
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;  
+      display: flex;  
+      justify-content: center;  
+      align-items: center;  
+      min-height: 100vh;  
+      margin: 0;  
+      padding: 10px;  
+    }  
+    .quiz-container {  
+      background: #1e1e1e;  
+      border: 1px solid #333;  
+      border-radius: 8px;  
+      padding: 20px;  
+      max-width: 700px;  
+      width: 100%;  
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);  
+    }  
+    h2 {  
+      text-align: center;  
+      margin-bottom: 20px;  
+    }  
+    .question {  
+      font-size: 1.2em;  
+      margin-bottom: 15px;  
+    }  
+    .options {  
+      list-style: none;  
+      padding: 0;  
+    }  
+    .options li {  
+      margin: 10px 0;  
+    }  
+    .option-btn {  
+      width: 100%;  
+      background: #333;  
+      color: #e0e0e0;  
+      border: none;  
+      padding: 10px 15px;  
+      font-size: 1em;  
+      border-radius: 5px;  
+      cursor: pointer;  
+      transition: background 0.3s ease;  
+    }  
+    .option-btn:hover:not(.disabled) {  
+      background: #444;  
+    }  
+    .option-btn.correct {  
+      background: #4caf50 !important;  
+      color: white;  
+    }  
+    .option-btn.incorrect {  
+      background: #f44336 !important;  
+      color: white;  
+    }  
+    .disabled {  
+      pointer-events: none;  
+    }  
+    .next-btn {  
+      display: block;  
+      margin: 20px auto 0;  
+      padding: 10px 20px;  
+      font-size: 1em;  
+      cursor: pointer;  
+      border: none;  
+      border-radius: 5px;  
+      background: #2196f3;  
+      color: white;  
+      transition: background 0.3s ease;  
+    }  
+    .next-btn:hover {  
+      background: #1976d2;  
+    }  
+    .result-container {  
+      background: #1e1e1e;  
+      padding: 20px;  
+      border-radius: 8px;  
+      margin-top: 20px;  
+    }  
+    .result-container h3 {  
+      text-align: center;  
+    }  
+    .summary-item {  
+      border-bottom: 1px solid #333;  
+      padding: 10px 0;  
+    }  
+    .summary-item:last-child {  
+      border-bottom: none;  
+    }  
+    .summary-question {  
+      font-weight: bold;  
+    }  
+    .answer {  
+      margin: 5px 0;  
+      padding: 5px;  
+      border-radius: 3px;  
+    }  
+    .answer.correct {  
+      background: #4caf50;  
+      color: white;  
+    }  
+    .answer.incorrect {  
+      background: #f44336;  
+      color: white;  
+    }  
+  </style>  
+</head>  
+<body>  
+  <div class="quiz-container">  
+    <h2>Electronics Quiz</h2>  
+    <div id="quiz">  
+      <!-- Quiz content will be injected here -->  
+    </div>  
+    <button id="next-btn" class="next-btn" style="display: none;">Next</button>  
+    <div id="result" class="result-container" style="display: none;"></div>  
+  </div>  
+
+  <script>  
+    const quizData = [  
+      {  
+        question: "1. What is the microcontroller used in the Arduino Nano?",  
+        options: ["ATmega328", "ATmega2560", "ESP32", "Raspberry Pi Pico"],  
+        correct: 0  
+      },  
+      {  
+        question: "2. How many digital pins does an Arduino Nano have?",  
+        options: ["8", "14", "22", "54"],  
+        correct: 1  
+      },  
+      {  
+        question: "3. What voltage does the Arduino Nano typically operate at?",  
+        options: ["1.5V", "3.3V", "5V", "12V"],  
+        correct: 2  
+      },  
+      {  
+        question: "4. True or False: Arduino Nano has built-in WiFi capabilities.",  
+        options: ["True", "False", "Maybe", "None"],  
+        correct: 1  
+      },  
+      {  
+        question: "5. What programming language is typically used for Arduino?",  
+        options: ["Python", "Java", "C/C++", "Scratch"],  
+        correct: 2  
+      },  
+      {  
+        question: "6. What does LED stand for?",  
+        options: ["Light Emitting Device", "Light Emitting Diode", "Light Energy Display", "Light Energy Diode"],  
+        correct: 1  
+      },  
+      {  
+        question: "7. Which leg of a standard LED is longer?",  
+        options: ["The positive (anode)", "The negative (cathode)", "Both are the same length", "It depends on the LED type"],  
+        correct: 0  
+      },  
+      {  
+        question: "8. Why do you need a resistor when connecting an LED to an Arduino?",  
+        options: ["To make the LED brighter", "To prevent too much current from damaging the LED", "To change the LED color", "To make the LED blink"],  
+        correct: 1  
+      },  
+      {  
+        question: "9. What happens if you connect an LED backwards?",  
+        options: ["It works normally", "It will not light up", "It will flash rapidly", "It will immediately burn out"],  
+        correct: 1  
+      },  
+      {  
+        question: "10. What Arduino function is used to control the brightness of an LED?",  
+        options: ["digitalSet()", "brightness()", "analogWrite()", "ledControl()"],  
+        correct: 2  
+      },  
+      {  
+        question: "11. Which pin type must be used for controlling LED brightness with PWM?",  
+        options: ["Digital pin", "Analog input pin", "PWM pin", "Power pin"],  
+        correct: 2  
+      },  
+      {  
+        question: "12. True or False: RGB LEDs contain three separate LEDs in one package.",  
+        options: ["True", "False", "Maybe", "None"],  
+        correct: 0  
+      },  
+      {  
+        question: "13. What is the main purpose of a buzzer in robotics projects?",  
+        options: ["To measure distance", "To produce sound", "To detect light", "To measure temperature"],  
+        correct: 1  
+      },  
+      {  
+        question: "14. Which type of buzzer requires a specific frequency signal to produce sound?",  
+        options: ["Active buzzer", "Passive buzzer", "Both types", "Neither type"],  
+        correct: 1  
+      },  
+      {  
+        question: "15. What Arduino function can be used to make a passive buzzer play a melody?",  
+        options: ["playSound()", "tone()", "buzzer()", "melody()"],  
+        correct: 1  
+      },  
+      {  
+        question: "16. True or False: A passive buzzer can produce different tones.",  
+        options: ["True", "False", "Maybe", "None"],  
+        correct: 0  
+      },  
+      {  
+        question: "17. What does an ultrasonic sensor measure?",  
+        options: ["Temperature", "Light intensity", "Distance", "Sound volume"],  
+        correct: 2  
+      },  
+      {  
+        question: "18. Which pins are typically found on an HC-SR04 ultrasonic sensor?",  
+        options: ["VCC, GND, ECHO, TRIG", "VCC, GND, TX, RX", "VCC, GND, SDA, SCL", "VCC, GND, A0, D0"],  
+        correct: 0  
+      },  
+      {  
+        question: "19. How does an ultrasonic sensor calculate distance?",  
+        options: ["By measuring light reflection time", "By measuring sound wave travel time", "By counting radio wave pulses", "By detecting infrared signals"],  
+        correct: 1  
+      },  
+      {  
+        question: "20. What is the typical maximum distance an HC-SR04 can measure accurately?",  
+        options: ["1 meter", "4 meters", "10 meters", "100 meters"],  
+        correct: 1  
+      },  
+      {  
+        question: "21. What happens if you place an object too close to an ultrasonic sensor?",  
+        options: ["The sensor will give incorrect readings", "The sensor will overheat", "The object will be damaged", "The Arduino will crash"],  
+        correct: 0  
+      },  
+      {  
+        question: "22. What is the purpose of a potentiometer in a circuit?",  
+        options: ["To produce light", "To adjust voltage or resistance", "To store electricity", "To amplify signals"],  
+        correct: 1  
+      },  
+      {  
+        question: "23. How many terminals does a standard potentiometer have?",  
+        options: ["2", "3", "4", "5"],  
+        correct: 1  
+      },  
+      {  
+        question: "24. What does \"10k\" mean in a 10k potentiometer?",  
+        options: ["It costs 10,000 dollars", "It uses 10,000 volts", "Its maximum resistance is 10,000 ohms", "It has 10,000 positions"],  
+        correct: 2  
+      },  
+      {  
+        question: "25. Which Arduino function is used to read the value from a potentiometer?",  
+        options: ["digitalRead()", "analogRead()", "potRead()", "getVoltage()"],  
+        correct: 1  
+      },  
+      {  
+        question: "26. True or False: Turning a potentiometer clockwise always increases its resistance.",  
+        options: ["True", "False", "Maybe", "None"],  
+        correct: 1  
+      },  
+      {  
+        question: "27. What type of signal does a potentiometer provide to an Arduino?",  
+        options: ["Digital", "Analog", "PWM", "Serial"],  
+        correct: 1  
+      },  
+      {  
+        question: "28. What does a thermistor measure?",  
+        options: ["Pressure", "Temperature", "Humidity", "Light"],  
+        correct: 1  
+      },  
+      {  
+        question: "29. How does a basic thermistor's resistance change when temperature increases?",  
+        options: ["Resistance increases", "Resistance decreases", "Resistance stays the same", "Resistance fluctuates randomly"],  
+        correct: 1  
+      },  
+      {  
+        question: "30. What type of Arduino pin is used to read a thermistor?",  
+        options: ["Digital pin", "Analog pin", "PWM pin only", "TX/RX pin"],  
+        correct: 1  
+      },  
+      {  
+        question: "31. What type of transistor is the BC547?",  
+        options: ["PNP", "NPN", "MOSFET", "JFET"],  
+        correct: 1  
+      },  
+      {  
+        question: "32. How many terminals does the BC547 transistor have?",  
+        options: ["2", "3", "4", "5"],  
+        correct: 1  
+      },  
+      {  
+        question: "33. What are the three terminals of a BC547 transistor called?",  
+        options: ["Input, Output, Ground", "Source, Gate, Drain", "Emitter, Base, Collector", "Positive, Negative, Control"],  
+        correct: 2  
+      },  
+      {  
+        question: "34. What is the main function of a BC547 transistor in a simple circuit?",  
+        options: ["To produce light", "To store energy", "To amplify current or act as a switch", "To reduce voltage"],  
+        correct: 2  
+      },  
+      {  
+        question: "35. Which component would you use to control a high-current device like a motor using an Arduino?",  
+        options: ["LED", "Transistor", "Thermistor", "Potentiometer"],  
+        correct: 1  
+      },  
+      {  
+        question: "36. What is the purpose of a breadboard in electronics projects?",  
+        options: ["To program the Arduino", "To protect components from damage", "To create temporary circuits without soldering", "To measure voltage and current"],  
+        correct: 2  
+      }  
+    ];  
+
+    let currentQuestion = 0;  
+    let score = 0;  
+    let userAnswers = [];   // Stores objects: {question, selected, correct}  
+
+    const quizEl = document.getElementById("quiz");  
+    const nextBtn = document.getElementById("next-btn");  
+    const resultEl = document.getElementById("result");  
+
+    function loadQuestion() {  
+      // Clear previous content and hide next button  
+      quizEl.innerHTML = "";  
+      nextBtn.style.display = "none";  
+
+      if (currentQuestion >= quizData.length) {  
+        showResult();  
+        return;  
+      }  
+
+      const qData = quizData[currentQuestion];  
+
+      // Create question element  
+      const questionEl = document.createElement("div");  
+      questionEl.className = "question";  
+      questionEl.innerText = qData.question;  
+      quizEl.appendChild(questionEl);  
+
+      // Create list of options  
+      const optionsList = document.createElement("ul");  
+      optionsList.className = "options";  
+
+      qData.options.forEach((option, index) => {  
+        const li = document.createElement("li");  
+        const btn = document.createElement("button");  
+        btn.className = "option-btn";  
+        btn.innerText = option;  
+        btn.addEventListener("click", () => selectOption(btn, index));  
+        li.appendChild(btn);  
+        optionsList.appendChild(li);  
+      });  
+
+      quizEl.appendChild(optionsList);  
+    }  
+
+    function selectOption(selectedBtn, selectedIndex) {  
+      const qData = quizData[currentQuestion];  
+      const optionsBtns = document.querySelectorAll(".option-btn");  
+      // Disable all buttons to prevent multiple selections.  
+      optionsBtns.forEach(btn => btn.classList.add("disabled"));  
+
+      // Mark the selected button as correct/incorrect  
+      if (selectedIndex === qData.correct) {  
+        selectedBtn.classList.add("correct");  
+        score++;  
+        userAnswers.push({  
+          question: qData.question,  
+          selected: {text: selectedBtn.innerText, correct: true},  
+          correctAnswer: qData.options[qData.correct]  
+        });  
+      } else {  
+        selectedBtn.classList.add("incorrect");  
+        // Mark the correct option as green.  
+        optionsBtns[qData.correct].classList.add("correct");  
+        userAnswers.push({  
+          question: qData.question,  
+          selected: {text: selectedBtn.innerText, correct: false},  
+          correctAnswer: qData.options[qData.correct]  
+        });  
+      }  
+      // Show next button after selection  
+      nextBtn.style.display = "block";  
+    }  
+
+    nextBtn.addEventListener("click", () => {  
+      currentQuestion++;  
+      loadQuestion();  
+    });  
+
+    function showResult() {  
+      quizEl.style.display = "none";  
+      nextBtn.style.display = "none";  
+      resultEl.style.display = "block";  
+
+      const totalQuestions = quizData.length;  
+      resultEl.innerHTML = `<h3>Results</h3>  
+        <p>Your Score: ${score} / ${totalQuestions}</p>  
+        <h3>Review:</h3>`;  
+
+      userAnswers.forEach((item, idx) => {  
+        const summaryDiv = document.createElement("div");  
+        summaryDiv.className = "summary-item";  
+        summaryDiv.innerHTML = `<div class="summary-question">${idx + 1}. ${item.question}</div>  
+          <div class="answer ${item.selected.correct ? "correct" : "incorrect"}">  
+            Your Answer: ${item.selected.text}  
+          </div>  
+          ${  
+            item.selected.correct   
+            ? ""   
+            : `<div class="answer correct">Correct Answer: ${item.correctAnswer}</div>`  
+          }`;  
+        resultEl.appendChild(summaryDiv);  
+      });  
+    }  
+
+    // Start the quiz  
+    loadQuestion();  
+  </script>  
+</body>  
+</html>
